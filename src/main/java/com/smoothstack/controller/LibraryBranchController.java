@@ -1,48 +1,53 @@
 package com.smoothstack.controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
-
-import com.smoothstack.dao.LibraryBranchDao;
-import com.smoothstack.entity.LibraryBranch;
-import com.smoothstack.util.DbUtil;
-
-import java.sql.Connection;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.smoothstack.entity.LibraryBranch;
+import com.smoothstack.repository.LibraryBranchRepository;
+
 @RestController
+@RequestMapping("/lms/administrator")
 public class LibraryBranchController {
 
-	@Autowired(required = true)
-	private LibraryBranchDao libraryBranchDao;
-	Connection conn = DbUtil.getConnection();
+	@Autowired
+	private LibraryBranchRepository libraryBranchRepository;
 
-	@RequestMapping(path = "/lms/libraryBranch/{libraryBranchId}", method = RequestMethod.GET)
-	public LibraryBranch getLibraryBranchById(@PathVariable(name = "libraryBranchId") int id) {
-		return libraryBranchDao.getById(conn, id);
+	@GetMapping("/libraryBranches")
+	public ResponseEntity<List<LibraryBranch>> getAllLibraryBranches() {
+		List<LibraryBranch> list = libraryBranchRepository.getAll();
+		return new ResponseEntity<List<LibraryBranch>>(list, HttpStatus.OK);
 	}
 
-	@RequestMapping(path = "/lms/libraryBranchs", method = RequestMethod.GET)
-	public List<LibraryBranch> getAllLibraryBranchs() {
-		return libraryBranchDao.getAll(conn);
+	@PostMapping("/libraryBranches/libraryBranch")
+	public ResponseEntity<LibraryBranch> addLibraryBranch(@RequestBody LibraryBranch libraryBranch) {
+		libraryBranchRepository.create(libraryBranch);
+		return new ResponseEntity<LibraryBranch>(HttpStatus.CREATED);
 	}
 
-	@RequestMapping(path = "/lms/libraryBranch", method = RequestMethod.POST)
-	public void addLibraryBranch(@RequestBody LibraryBranch libraryBranch) {
-		libraryBranchDao.add(conn, libraryBranch);
+	@PutMapping("/libraryBranches/libraryBranch")
+	public ResponseEntity<LibraryBranch> updateLibraryBranch(@RequestBody LibraryBranch libraryBranch) {
+		libraryBranchRepository.update(libraryBranch);
+		return new ResponseEntity<LibraryBranch>(HttpStatus.OK);
 	}
 
-	@RequestMapping(path = "/lms/libraryBranch", method = RequestMethod.PUT)
-	public void updateLibraryBranch(@RequestBody LibraryBranch libraryBranch) {
-		libraryBranchDao.update(conn, libraryBranch);
+	@DeleteMapping("/libraryBranches/libraryBranch{libraryBranchId}")
+	public ResponseEntity<LibraryBranch> deleteLibraryBranch(@PathVariable long libraryBranchId) {
+		libraryBranchRepository.delete(libraryBranchId);
+		return new ResponseEntity<LibraryBranch>(HttpStatus.ACCEPTED);
+		
 	}
+	
 
-	@RequestMapping(path = "/lms/libraryBranch", method = RequestMethod.DELETE)
-	public void deleteLibraryBranch(@RequestBody int libraryBranchId) {
-		libraryBranchDao.delete(conn, libraryBranchId);
-	}
 }

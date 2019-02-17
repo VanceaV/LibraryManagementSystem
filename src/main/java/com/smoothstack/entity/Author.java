@@ -1,8 +1,29 @@
 package com.smoothstack.entity;
 
-public class Author extends Entity {
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
 
+@Entity(name = "tbl_author")
+public class Author {
+
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name = "authorId", unique = true, nullable = false)
+	private long id;
+
+	@Column(name = "author_name", nullable = false)
 	private String authorName;
+
+	public long getId() {
+		return id;
+	}
+
+	public void setId(long id) {
+		this.id = id;
+	}
 
 	public String getAuthorName() {
 		return authorName;
@@ -12,13 +33,5 @@ public class Author extends Entity {
 		this.authorName = authorName;
 	}
 
-	@Override
-	public String toString() {
-		return "Author [authorName=" + authorName + ", getId()=" + getId().intValue() + "]";
-	}
-
-	
-	
-	
-	
 }
+

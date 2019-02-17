@@ -1,62 +1,57 @@
 package com.smoothstack.controller;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.smoothstack.dao.BookCopiesDao;
-import com.smoothstack.entity.BookCopies;
-import com.smoothstack.util.DbUtil;
-
-import java.sql.Connection;
-import java.util.List;
+import com.smoothstack.entity.Book;
+import com.smoothstack.entity.LibraryBranch;
+import com.smoothstack.repository.BookCopiesRepository;
+import com.smoothstack.repository.LibraryBranchRepository;
 
 @RestController
+@RequestMapping("/lms/librarian")
 public class BookCopiesController {
 
-	@Autowired(required = true)
-	private BookCopiesDao bookCopiesDao;
-	Connection conn = DbUtil.getConnection();
+	@Autowired
+	private LibraryBranchRepository libraryBranchRepository;
+	@Autowired
+	private BookCopiesRepository bookCopiesRepository;
 
-	@RequestMapping(path = "/lms/bookCopiess/libraryBranch/{libraryBranchId}/book/{bookId}", method = RequestMethod.GET)
-	public BookCopies getByBranchIdandBookId(@PathVariable(name = "libraryBranchId") int branchId,
-			@PathVariable(name = "bookId") int bookId) {
-		return bookCopiesDao.getByBranchIdandBookId(conn, branchId, bookId);
+	@GetMapping("/libraryBranches")
+	public ResponseEntity<List<LibraryBranch>> getAllLibraryBranches() {
+		List<LibraryBranch> list = libraryBranchRepository.getAll();
+		return new ResponseEntity<List<LibraryBranch>>(list, HttpStatus.OK);
 	}
 
-	@RequestMapping(path = "/lms/bookCopiess", method = RequestMethod.GET)
-	public List<BookCopies> getAllBookCopiess() {
-		return bookCopiesDao.getAll(conn);
+	@PutMapping("/libraryBranches/libraryBranch")
+	public ResponseEntity<LibraryBranch> updateLibraryBranchDetails(@RequestBody LibraryBranch libraryBranch) {
+		libraryBranchRepository.update(libraryBranch);
+		return new ResponseEntity<LibraryBranch>(HttpStatus.OK);
 	}
 
-	@RequestMapping(path = "/lms/bookCopiess/libraryBranch/{libraryBranchId}", method = RequestMethod.GET)
-	public List<BookCopies> getAllbyBranch(@PathVariable(name = "libraryBranchId") int branchId) {
-		return bookCopiesDao.getAllbyBranch(conn, branchId);
+	@PutMapping("/libraryBranches/libraryBranch/updateNumberOfCopies")
+	public ResponseEntity<LibraryBranch> updateNumberOfcopies(@RequestParam("numberOfCopies") int numberOfCopies,
+			@RequestParam("bookId") long bookId, @RequestParam("branchId") long branchId) {
+		bookCopiesRepository.updateNumberOfCopies(numberOfCopies, bookId, branchId);
+		return new ResponseEntity<LibraryBranch>(HttpStatus.OK);
 	}
 
-	@RequestMapping(path = "/lms/bookCopiess/numberOfCopies/libraryBranch/{libraryBranchId}/book/{bookId}", method = RequestMethod.GET)
-	public int getNumbersOfCopiesByID(@PathVariable(name = "libraryBranchId") int branchId,
-			@PathVariable(name = "bookId") int bookId) {
-		return bookCopiesDao.getNumbersOfCopiesByID(conn, branchId, bookId);
-	}
-
-	@RequestMapping(path = "/lms/bookCopiess/libraryBranch/{libraryBranchId}/book/{bookId}/numberOfCopies{numberOfCopies}", method = RequestMethod.POST)
-	public void updateNumbersOfCopies(@PathVariable(name = "libraryBranchId") int branchId,
-			@PathVariable(name = "bookId") int bookId, @PathVariable(name = "numberOfCopies") int numberOfCopies) {
-		bookCopiesDao.updateNumbersOfCopies(conn, branchId, bookId, numberOfCopies);
-	}
-
-	@RequestMapping(path = "/lms/bookCopies", method = RequestMethod.POST)
-	public void addBookCopies(@RequestBody BookCopies bookCopies) {
-		bookCopiesDao.add(conn, bookCopies);
-	}
-
-	@RequestMapping(path = "/lms/bookCopies", method = RequestMethod.PUT)
-	public void updateBookCopies(@RequestBody BookCopies bookCopies) {
-		bookCopiesDao.update(conn, bookCopies);
+	@GetMapping("/libraryBranches/libraryBranch/booksWithAtLeastOneCopy")
+	public ResponseEntity<List<Book>> getAllBooksWithAtLeastOneCopy(@RequestParam("branchId") long branchId) {
+		List<Book> books = bookCopiesRepository.getAllBookCopies().stream()
+				.filter(b -> b.getLibraryBranch().getId() == branchId).filter(b -> b.getNoOfCopies() > 0)
+				.map(b -> b.getBook()).collect(Collectors.toList());
+		return new ResponseEntity<List<Book>>(books, HttpStatus.OK);
 	}
 
 }

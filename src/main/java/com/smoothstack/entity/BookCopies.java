@@ -1,25 +1,42 @@
 package com.smoothstack.entity;
 
-public class BookCopies extends Entity {
+import javax.persistence.Column;
+import javax.persistence.EmbeddedId;
+import javax.persistence.Entity;
 
-	private Book book;
-	private LibraryBranch libraryBranch;
+@Entity(name = "tbl_book_copies")
+public class BookCopies {
+
+	@EmbeddedId
+	private BookCopiesId id;
+
+	@Column(name = "no_of_copies")
 	private int noOfCopies;
 
+	public BookCopiesId getId() {
+		return id;
+	}
+
+	public void setId(BookCopiesId id) {
+		this.id = id;
+	}
+
+	@Column(name = "book_id")
 	public Book getBook() {
-		return book;
+		return id.getBook();
 	}
 
 	public void setBook(Book book) {
-		this.book = book;
+		this.id.setBook(book);
 	}
 
+	@Column(name = "branch_id")
 	public LibraryBranch getLibraryBranch() {
-		return libraryBranch;
+		return id.getLibraryBranch();
 	}
 
 	public void setLibraryBranch(LibraryBranch libraryBranch) {
-		this.libraryBranch = libraryBranch;
+		this.id.setLibraryBranch(libraryBranch);
 	}
 
 	public int getNoOfCopies() {
@@ -37,12 +54,6 @@ public class BookCopies extends Entity {
 
 	public void incrementNumberOfCopies() {
 		noOfCopies++;
-	}
-
-	@Override
-	public String toString() {
-		return "BookID=[" + book.getId() + "] LibraryBranch=[" + libraryBranch.getId() + "] Number of Copies = "
-				+ noOfCopies;
 	}
 
 }

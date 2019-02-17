@@ -2,38 +2,59 @@ package com.smoothstack.entity;
 
 import java.time.LocalDate;
 
-public class BookLoans extends Entity {
+import javax.persistence.Column;
+import javax.persistence.EmbeddedId;
+import javax.persistence.Entity;
 
-	private Book book;
-	private LibraryBranch libraryBranch;
-	private Borrower borrower;
+@Entity(name = "tbl_book_loans")
 
+public class BookLoans {
+
+	@EmbeddedId
+	private BookLoansId id;
+
+	@Column(name = "date_out")
+	private LocalDate dateOut;
+
+	@Column(name = "due_date")
+	private LocalDate dueDate;
+
+	@Column(name = "book_id")
 	public Book getBook() {
-		return book;
+		return id.getBook();
 	}
 
 	public void setBook(Book book) {
-		this.book = book;
+		id.setBook(book);
 	}
 
+	@Column(name = "branch_id")
 	public LibraryBranch getLibraryBranch() {
-		return libraryBranch;
+		return id.getLibraryBranch();
 	}
 
 	public void setLibraryBranch(LibraryBranch libraryBranch) {
-		this.libraryBranch = libraryBranch;
+		id.setLibraryBranch(libraryBranch);
+		
 	}
 
+	@Column(name = "card_no")
 	public Borrower getBorrower() {
-		return borrower;
+		return id.getBorrower();
 	}
 
 	public void setBorrower(Borrower borrower) {
-		this.borrower = borrower;
+		id.setBorrower(borrower);
 	}
 
-	private LocalDate dateOut;
-	private LocalDate dueDate;
+	public BookLoansId getId() {
+		return id;
+	}
+	
+
+	public void setId(BookLoansId id) {
+		this.id = id;
+	}
 
 	public LocalDate getDateOut() {
 		return dateOut;
@@ -51,9 +72,5 @@ public class BookLoans extends Entity {
 		this.dueDate = dueDate;
 	}
 
-	@Override
-	public String toString() {
-		return "BookId=" + book.getId() + "//" + "BranchId=" + libraryBranch.getId() + "//" + "CardNumber="
-				+ borrower.getId() + "//" + "DateOut: " + dateOut.toString() + "//" + "DueDate: " + dueDate.toString();
-	}
 }
+

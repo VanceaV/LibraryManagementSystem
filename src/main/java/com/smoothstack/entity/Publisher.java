@@ -1,10 +1,29 @@
 package com.smoothstack.entity;
 
-public class Publisher extends Entity {
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
 
+@Entity(name = "tbl_publisher")
+public class Publisher {
+
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name = "publisherId", unique = true, nullable = false)
+	private long id;
 	private String publisherName;
 	private String publisherAddress;
 	private String publisherPhone;
+
+	public long getId() {
+		return id;
+	}
+
+	public void setId(long id) {
+		this.id = id;
+	}
 
 	public String getPublisherName() {
 		return publisherName;
@@ -30,11 +49,5 @@ public class Publisher extends Entity {
 		this.publisherPhone = publisherPhone;
 	}
 
-	@Override
-	public String toString() {
-
-		return "Id=[" + getId() + "]" + " publisherName is " + publisherName + " publisherAddress is "
-				+ publisherAddress + " publisherPhone is " + publisherPhone;
-	}
-
 }
+

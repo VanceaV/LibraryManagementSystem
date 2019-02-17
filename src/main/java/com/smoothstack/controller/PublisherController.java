@@ -1,45 +1,52 @@
 package com.smoothstack.controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
-
-
-import com.smoothstack.dao.PublisherDao;
-import com.smoothstack.entity.Publisher;
-import com.smoothstack.util.DbUtil;
-
-import java.sql.Connection;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.smoothstack.entity.Publisher;
+import com.smoothstack.repository.PublisherRepository;
+
 @RestController
+@RequestMapping("/lms/administrator")
 public class PublisherController {
 
-	@Autowired(required = true)
-	private PublisherDao publisherDao;
-	Connection conn = DbUtil.getConnection();
+	@Autowired
+	private PublisherRepository publisherRepository;
 
-	@RequestMapping(path = "/lms/publisher/{publisherId}", method = RequestMethod.GET)
-	public Publisher getPublisherById(@PathVariable(name = "publisherId") int id) {
-		return publisherDao.getById(conn, id);
+	@GetMapping("/publishers")
+	public ResponseEntity<List<Publisher>> getAllPublishers() {
+		List<Publisher> list = publisherRepository.getAll();
+		return new ResponseEntity<List<Publisher>>(list, HttpStatus.OK);
 	}
 
-	@RequestMapping(path = "/lms/publishers", method = RequestMethod.GET)
-	public List<Publisher> getAllPublishers() {
-		return publisherDao.getAll(conn);
+	@PostMapping("/publishers/publisher")
+	public ResponseEntity<Publisher> addPublisher(@RequestBody Publisher publisher) {
+		publisherRepository.create(publisher);
+		return new ResponseEntity<Publisher>(HttpStatus.CREATED);
 	}
 
-	@RequestMapping(path = "/lms/publisher", method = RequestMethod.POST)
-	public void addPublisher(@RequestBody Publisher publisher) {
-		publisherDao.add(conn, publisher);
+	@PutMapping("/publishers/publisher")
+	public ResponseEntity<Publisher> updatePublisher(@RequestBody Publisher publisher) {
+		publisherRepository.update(publisher);
+		return new ResponseEntity<Publisher>(HttpStatus.OK);
 	}
 
-	@RequestMapping(path = "/lms/publisher", method = RequestMethod.PUT)
-	public void updatePublisher(@RequestBody Publisher publisher) {
-		publisherDao.update(conn, publisher);
+	@DeleteMapping("/publishers/publisher{publisherId}")
+	public ResponseEntity<Publisher> deletePublisher(@PathVariable long publisherId) {
+		publisherRepository.delete(publisherId);
+		return new ResponseEntity<Publisher>(HttpStatus.ACCEPTED);
 	}
-
+	
 }
+

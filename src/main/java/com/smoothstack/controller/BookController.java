@@ -1,54 +1,52 @@
 package com.smoothstack.controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
-
-import com.smoothstack.dao.BookDao;
-import com.smoothstack.entity.Book;
-import com.smoothstack.util.DbUtil;
-
-import java.sql.Connection;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.smoothstack.entity.Book;
+import com.smoothstack.repository.BookRepository;
+
 @RestController
+@RequestMapping("/lms/administrator")
 public class BookController {
 
-	@Autowired(required = true)
-	private BookDao bookDao;
-	Connection conn = DbUtil.getConnection();
+	@Autowired
+	private BookRepository bookRepository;
 
-	@RequestMapping(path = "/lms/book/{bookId}", method = RequestMethod.GET)
-	public Book getBookById(@PathVariable(name = "bookId") int id) {
-		return bookDao.getById(conn, id);
+	@GetMapping("/books")
+	public ResponseEntity<List<Book>> getAllBooks() {
+		List<Book> list = bookRepository.getAll();
+		return new ResponseEntity<List<Book>>(list, HttpStatus.OK);
 	}
 
-	@RequestMapping(path = "/lms/books", method = RequestMethod.GET)
-	public List<Book> getAllBooks() {
-		return bookDao.getAll(conn);
+	@PostMapping("/books/book")
+	public ResponseEntity<Book> addBook(@RequestBody Book book) {
+		bookRepository.create(book);
+		return new ResponseEntity<Book>(HttpStatus.CREATED);
 	}
 
-	@RequestMapping(path = "/lms/book", method = RequestMethod.POST)
-	public void addBook(@RequestBody Book book) {
-		bookDao.add(conn, book);
+	@PutMapping("/books/book")
+	public ResponseEntity<Book> updateBook(@RequestBody Book book) {
+		bookRepository.update(book);
+		return new ResponseEntity<Book>(HttpStatus.OK);
 	}
 
-	@RequestMapping(path = "/lms/book", method = RequestMethod.PUT)
-	public void updateBook(@RequestBody Book book) {
-		bookDao.update(conn, book);
+	@DeleteMapping("/books/book/{bookId}")
+	public ResponseEntity<Book> deleteBook(@PathVariable long bookId) {
+		bookRepository.delete(bookId);
+		return new ResponseEntity<Book>(HttpStatus.ACCEPTED);
 	}
-
-	@RequestMapping(path = "/lms/book", method = RequestMethod.DELETE)
-	public void deleteBook(@RequestBody int bookId) {
-		bookDao.delete(conn, bookId);
-	}
-
-	@RequestMapping(path = "/lms/booksWithNumberOfCopies/libraryBranch{branchId}", method = RequestMethod.GET)
-	public List<Book> getAllBooksWithNumberOfCopies(@PathVariable(name = "branchId") int id) {
-		return bookDao.getAllBooksWithNumberOfCopies(conn, id);
-	}
+	
 
 }

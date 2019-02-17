@@ -1,10 +1,32 @@
 package com.smoothstack.entity;
 
-public class Borrower extends Entity {
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
 
+@Entity(name = "tbl_borrower")
+public class Borrower {
+
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name = "card_no", unique = true, nullable = false)
+	private long id;
+	@Column
 	private String name;
+	@Column
 	private String address;
+	@Column
 	private String phone;
+
+	public long getId() {
+		return id;
+	}
+
+	public void setId(long id) {
+		this.id = id;
+	}
 
 	public String getName() {
 		return name;
@@ -20,6 +42,7 @@ public class Borrower extends Entity {
 
 	public void setAddress(String address) {
 		this.address = address;
+		
 	}
 
 	public String getPhone() {
@@ -28,12 +51,6 @@ public class Borrower extends Entity {
 
 	public void setPhone(String phone) {
 		this.phone = phone;
-	}
-
-	@Override
-	public String toString() {
-		return "Id=[" + getId() + "]" + " Borrower Name: " + name + " Borrower Address: " + address
-				+ " Borrower Phone: " + phone;
 	}
 
 }
